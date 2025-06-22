@@ -1,0 +1,14 @@
+pre,
+p{
+    font-size:1em;
+    font-family:"'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans CJK KR', 'Noto Sans KR', '나눔바른고딕', '나눔고딕', '맑은고딕', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol' !important";
+    white-space : pre-wrap;
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+h1>a{
+    display:inline-block !important;
+}
+.title{
+    min-height: 3rem;
+}

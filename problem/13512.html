@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+일단은 풀었던 문제 중 고난도 문제로 블로그 글 작성 박치기를 해보려고 한다. 이번 문제는 Heavy-light Decompostion을 통하여 트리구조의 접근을 세그먼트 트리를 이용하여 접근할 수 있게 하는 능력을 요구하는 문제이다.
+
+나중에 여유가 있다면 세그먼트 트리에 대한 예제문제들을 링크로 걸어놓지 않을까..
+
+일단 Heavy-light Decompostion에 대해서인데.. 간단하게 모든 노드에서 자식으로의 무거운 간선(서브 트리중 가장 노드수가 많은 노드로 향하는 간선)을 선정하는 과정이다.
+
+이 때, 무거운 간선들로 연결된 노드끼리를 하나의 그룹으로 보는 개념이다.
+
+이 그룹내에서 계산하고자 하는 값을(합, 최댓값 등) Segment Tree를 이용하여 저장하면, 같은 그룹내에서 원하는 값을 빠르게 획득할 수 있다.
+
+추가적으로 서로 연결된 그룹의 경우, 무조건 특정 그룹의 루트 노드가 다른 그룹에 연결되어있음이 자명하기에 서로 연결된 A그룹과 B그룹내의 노드 a,b에 대한 비용을 구할때(B의 Level이 더낮아 A 그룹 내의 서브트리로 존재한다고 가정), [b,root B], [root B, parent of root B], [parent of root B, a]에 해당하는 3번의 구간들의 값을 계산하는것으로 비용을 절감할 수 있다.
+
+부족한 설명은 다른 사이트를 통해서 알아보는것을 추천하고(당장 이미지 넣기 귀찮은데, 이미지 넣을 생각이들면 내용 추가할지도)
+
+구현 방법에 대해 고민을 해보자.
+
+우선 특정 노드에 대해서 어떤 자식노드가 무거운지를 파악해야한다. 이를 위해서는 해당 노드를 루트로 갖는 서브트리의 노드 수를 구할 필요가 있고, 이는 DFS로 어렵지 않게 구할 수 있다. 덤으로 가장 무거운 노드를 리스트에서 0번째에 배치할 수도 있을 것이다.
+
+<code class="c++">
+int dfs_weight(int p){
+    visit[p]=1; //노드에 대한 방문지 배열(초기값 0)
+    int c=1;    //현재 노드를 루트로 갖는 서브트리의 크기(현재 노드 포함한 초기값 1)
+    int max_weight=0;       //탐색한 서브트리중 가장 무거운 서브트리의 크기
+    for(int i=0,s=tree[p].size();i&#x3C;s;i++){     //tree는 인접 리스트로 구현 됨, 인접 리스트 순회
+        int nxt=tree[p][i];
+        if(visit[nxt])continue;             //방문 체크를 통해 부모노드로 역류하는 경우를 막음
+        par[nxt]=p;                         //자식 노드의 부모를 초기화
+        int w=dfs_weight(nxt);
+        c+=w;                               //무거운 노드 확인
+        if(max_weight&#x3C;w){          //가장 무거운노드 0번째로 설정
+            max_weight=w;
+            tree[p][i]=tree[p][0];
+            tree[p][0]=nxt;
+        }
+    }
+    return weight[p]=c;     //노드별 weight값 설정
+}
+</code>
+이 후, 각 정점에 새로운 index를 부여해줄 것이다. 이 때, 하나의 그룹은 반드시 높은 노드에서 부터 낮은 노드 순으로 연속된 번호를 부여해야한다. 위의 DFS에서 가장 무거운 노드를 0번째로 옮겼으니 순차적으로 다시 DFS를 수행해서 진행할 수 있다.
+
+<code class="c++">
+int dfs_idx(int p,int c){
+    visit[p]=0;     //노드에 대한 방문지 배열(초기값 1)
+    idx[c]=p;       //세그먼트 c와 입력된 트리 p가 매칭되어 있음
+    r_idx[p]=c;     //반대로도 매칭 시켜준다
+    hld.back().second=c;        //hld는 int 로 된 vector로 임의의 i에 대해 i,i+1은 hld 구간이[hld[i],hld[i+1])임을 의미한다
+    for(int i=0,s=tree[p].size();i&#x3C;s;i++){
+        int nxt=tree[p][i];
+        if(!visit[nxt])continue;
+        if(i)                   //가벼운 간선의 경우, 새로운 그룹을 추가해준다
+            hld.push_back(c+1);
+        c=dfs_idx(nxt,c+1);     //dfs를 통해 세그먼트트리의 index 값을 변경
+    }
+    return c;   
+}
+</code>
+이처럼 세그먼트 트리와 입력받은 트리의 정점들을 인덱싱 할 수 있다. 위 코드를 보면 알겠지만, hld vector는 반드시 오름차순으로 저장되니까 트리에서 특정 정점이 어디 그룹에 있는지 찾을라면 세그먼트 트리로 매칭된 인덱스가 hld 벡터 내에서 어딨는지 이진탐색으로 찾아주면 된다
+
+나머지는 이제 세그먼트 트리와 이진탐색 같은 기본적인 개념(문제에서 요구하는 수준에 비해)이기 때문에 별도의 설명은 없이 넘어가고 전체 코드를 보자
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;vector&#x3E;
+#include &#x3C;algorithm&#x3E;
+#define INF 2100000000
+
+int n,m;
+int u,v;
+std::vector&#x3C;int&#x3E; tree[123456];
+int par[123456];
+std::vector&#x3C;int&#x3E; hld;
+int idx[123456]={1},r_idx[123456];
+int weight[123456];
+int visit[123456];
+int seg_tree[567890],seg=1;
+
+void update(int p, int d){
+    p+=seg;
+    if(seg_tree[p]==d) seg_tree[p]=INF;
+    else seg_tree[p]=d;
+    for(p&#x3E;&#x3E;=1;p&#x3E;0;p&#x3E;&#x3E;=1)
+        seg_tree[p]=seg_tree[seg_tree[p*2] &#x3C; seg_tree[2*p+1] ? 2*p : 2*p+1];
+}
+
+int min_seg(int l,int r,int s,int e,int p){
+    if(r&#x3C;s||e&#x3C;l)return INF;
+    if(s&#x3C;=l&#x26;&#x26;r&#x3C;=e)return seg_tree[p];
+    int left=min_seg(l,(l+r)/2,s,e,p*2),
+     right=min_seg((l+r)/2+1,r,s,e,p*2+1);
+    return left&#x3C;right ? left : right;
+}
+
+int dfs_weight(int p){
+    visit[p]=1;
+    int c=1;
+    int max_weight=0;
+    for(int i=0,s=tree[p].size();i&#x3C;s;i++){
+        int nxt=tree[p][i];
+        if(visit[nxt])continue;
+        par[nxt]=p;
+        int w=dfs_weight(nxt);
+        c+=w;
+        if(max_weight&#x3C;w){
+            max_weight=w;
+            tree[p][i]=tree[p][0];
+            tree[p][0]=nxt;
+        }
+    }
+    return weight[p]=c;
+}
+
+int dfs_idx(int p,int c){
+    visit[p]=0;
+    idx[c]=p;
+    r_idx[p]=c;
+    for(int i=0,s=tree[p].size();i&#x3C;s;i++){
+        int nxt=tree[p][i];
+        if(!visit[nxt])continue;
+        if(i)
+            hld.push_back(c+1);
+        c=dfs_idx(nxt,c+1);
+    }
+    return c;
+}
+
+int main(){
+    scanf(&#x22;%d&#x22;,&#x26;n);
+    for(int i=1;i&#x3C;n;i++){
+        scanf(&#x22;%d %d&#x22;,&#x26;u,&#x26;v);
+        tree[u].push_back(v);
+        tree[v].push_back(u);
+    }
+    dfs_weight(1);
+    hld.push_back(0);
+    dfs_idx(1,0);
+    for(;seg&#x3C;=n;seg&#x3C;&#x3C;=1);
+    for(int i=1;i&#x3C;seg*2;i++)seg_tree[i]=INF;
+    scanf(&#x22;%d&#x22;,&#x26;m);
+    for(int i=0;i&#x3C;m;i++){
+        scanf(&#x22;%d %d&#x22;,&#x26;u,&#x26;v);
+        if(u==1){
+            update(r_idx[v],r_idx[v]);
+        }
+        else{
+            int _min=INF;
+            int cnt=0;
+            for(;v&#x3E;=1;){
+                int t=r_idx[v];
+                auto p=std::upper_bound(hld.begin(),hld.end(),t)-1;
+                int r=min_seg(0,seg-1,*p,t,1);
+                v=par[idx[*p]];
+                _min=r&#x3C;_min?r:_min;
+                if(++cnt&#x3E;100)break;
+            }
+            printf(&#x22;%d\n&#x22;,_min==INF ? -1 : idx[_min]);
+        }
+    }
+    return 0;
+}
+</code>
+구간이 [hld[i],hld[i+1])로 이루어지니 upper_bound(...)-1을 통해 한번에 찾아줄 수 있다
+
+<code class="text">
+9
+1 2
+1 3
+2 4
+2 9
+5 9
+7 9
+8 9
+6 8
+8
+2 3
+1 8
+2 6
+2 7
+1 2
+2 9
+1 2
+2 9
+</code>
+이에 대한 출력 값이
+
+<code class="text">
+-1
+8
+-1
+2
+-1
+</code>
+이렇게 잘 나오는걸 볼 수있다.
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>

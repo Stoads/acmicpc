@@ -1,2 +1,2 @@
 # acmicpc
-acmicpc solve
+explain about acmicpc solve(adding)
