@@ -165,14 +165,12 @@ int main(){
         }
         else{
             int _min=INF;
-            int cnt=0;
             for(;v&#x3E;=1;){
                 int t=r_idx[v];
                 auto p=std::upper_bound(hld.begin(),hld.end(),t)-1;
                 int r=min_seg(0,seg-1,*p,t,1);
                 v=par[idx[*p]];
                 _min=r&#x3C;_min?r:_min;
-                if(++cnt&#x3E;100)break;
             }
             printf(&#x22;%d\n&#x22;,_min==INF ? -1 : idx[_min]);
         }
