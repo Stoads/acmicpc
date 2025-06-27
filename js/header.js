@@ -27,7 +27,7 @@ problem.then( (problem_dat) =>
         if(event.key==='Enter'){
             const value=input.value
             if(value in problem_dat)
-                location.href = (home_pos[0] == '.' ? '' : 'problem/')+value+'.html'
+                location.href = (location.pathname.endsWith('/') ? './problem/' : './')+value+'.html'
             else
                 input.classList.add('border-danger')
         }

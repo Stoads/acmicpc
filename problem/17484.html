@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+Solved.ac 3번째 마라톤 참여 3번째 문제
+
+이런 문제는 제목을 보면 (Small)로 되어있는데, 보통 대회 문제로 좀더 입력 케이스 범위가 적은대신 배점이 낮은 부분문제에 속한다.
+
+입력 범위가 넓은 <a href="./17485.html">(Large)문제</a>도 있다.
+
+입력범위가 6*6밖에 안되는지라 DFS 기반의 브루트 포스로 풀어도 통과 되는 문제다. 근데 맘에 안들고 어차피 Large 문제도 풀거라 DP로 짰다.
+
+근데 약간 더 코스트가 증가하긴하지만 DFS로 DP를 짤수도 있다. 코드가 더 직관적으로 보이는데, 위에 Large문제를 그렇게 풀어봤으니 DFS로 짠 DP가 보고싶다면 Large문제에 대한 풀이도 같이 보면 좋을거 같다.
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;cstring&#x3E;
+#include &#x3C;algorithm&#x3E;
+int cost[9][9];
+int n,m;
+int dp[9][9][3];
+int main(){
+    memset(dp,0x3f,sizeof(dp));
+    scanf(&#x22;%d%d&#x22;,&#x26;n,&#x26;m);
+    for(int i=0;i&#x3C;n;i++)
+        for(int j=1;j&#x3C;=m;j++)
+            scanf(&#x22;%d&#x22;,cost[i]+j);
+    for(int j=1;j&#x3C;=m;j++)
+        for(int k=0;k&#x3C;3;k++)
+            dp[0][j][k]=cost[0][j];
+    for(int i=1;i&#x3C;=n;i++)
+        for(int j=1;j&#x3C;=m;j++)
+            for(int k=0;k&#x3C;3;k++)
+                for(int l=0;l&#x3C;3;l++)
+                    if(l!=k)
+                        dp[i][j][k]=std::min(dp[i][j][k],dp[i-1][j-1+l][l]+cost[i][j]);
+    int res=2e9;
+    for(int j=1;j&#x3C;=m;j++)
+        for(int k=0;k&#x3C;3;k++)
+            res=std::min(res,dp[n][j][k]);
+    printf(&#x22;%d&#x22;,res);
+}
+</code>
+평범한 DP에 진행방향도 그냥 선형이라 사실 별거 없다. 그냥 방향 겹치는거만 체크해주고, 마지막에 어떤 방향에서 왔는지만 기록해주면 된다.
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>

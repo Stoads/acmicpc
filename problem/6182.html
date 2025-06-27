@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+Solved.ac 3번째 마라톤 참여 5번째 문제
+
+요약하면 특정수 자연수 n과 k에 대해서, n을 자연수 a,a+k로 나누는걸 더 못할 때 까지 반복하면 된다. 특정 수를 분할하면서 처리해 나가니 분할정복으로 볼 수 있겠고 그 방법은 재귀적 호출, 각 수를 노드로 보면 DFS로 볼 수 있겠다. 아님말고
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+int n,m;
+int dfs(int k){
+    if(k&#x3C;=m||k%2!=m%2)return 1;
+    return dfs(k/2-m/2)+dfs(k-k/2+m/2);
+}
+int main(){
+    scanf(&#x22;%d%d&#x22;,&#x26;n,&#x26;m);
+    printf(&#x22;%d&#x22;,dfs(n));
+}
+</code>
+추가적인 점이라면 n=2a+k여야 하므로 k가 홀수면 n도 홀수, k가 짝수면 n도 짝수여야한다는 점을 이해해서 조건을 짜야한다는 점이다.
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>

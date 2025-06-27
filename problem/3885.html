@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+Solved.ac 3번째 마라톤 참여 7번째 문제
+
+문제 자체는 굉장히 쉬운 구현 문제이다. 근데 소숫점 쓰는거며 귀찮은게 많다.. 무엇보다 소수로 출력이 떠야하는 문제는 오차가 발생할수 있는점 때문에 쉽지 않다..
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;algorithm&#x3E;
+int sol(){
+    int n,m;
+    int bucket[12]={};
+    scanf(&#x22;%d%d&#x22;,&#x26;n,&#x26;m);
+    if(n==0)return 0;
+    int _max=0,sz=0;
+    for(int i=0,x;i&#x3C;n;i++){
+        scanf(&#x22;%d&#x22;,&#x26;x);
+        _max=std::max(_max,++bucket[x/m]);
+        sz=std::max(sz,x/m);
+    }
+    double res=0.01;
+    for(int i=0;i&#x3C;sz;i++)
+        res+=(double)bucket[i]/_max*(sz-i)/sz;
+    printf(&#x22;%.10g\n&#x22;,res);
+    return 1;
+}
+int main(){
+    while(sol());
+}
+</code>
+코드 보면 알겠지만 그냥 구간별 카운트해서 그걸로 시그마 계산하는게 끝이다... 맨 끝에 흰색은 어차피 *0이니 계산 안한거고
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>

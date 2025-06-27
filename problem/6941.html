@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+Solved.ac 3번째 마라톤 참여 1번째 문제
+
+솔직히 그냥 달력 출력하면 끝나는 문제라 설명할게 없다.
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+int n,d;
+int main(){
+    scanf(&#x22;%d%d&#x22;,&#x26;n,&#x26;d);
+    for(int i=0;i&#x3C;7;i++)
+        printf(&#x22;%.3s &#x22;,&#x22;SunMonTueWedThrFriSat&#x22;+i*3);
+    for(int i=0;i&#x3C;6*printf(&#x22;\n&#x22;)&#x26;&#x26;1-n&#x3C;=d;i++)
+        for(int j=0;j&#x3C;7;j++)
+            --n&#x3E;0?printf(&#x22;    &#x22;) : 1-n&#x3E;d||printf(&#x22;%3d &#x22;,1-n);
+}
+</code>
+참고할만한 포인트가 있다면 .3s로 문자열을 끊어낼 수 있다는거 정도?
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>

@@ -1,4 +1,13 @@
 {
     "1000":{"difficulty":"bronze 5","title":"A+B"},
-    "13512":{"difficulty":"platinum 1","title":"트리와 쿼리 3"}
+    "13512":{"difficulty":"platinum 1","title":"트리와 쿼리 3"},
+    "6941":{"difficulty":"bronze 1","title":"Calendar"},
+    "1755":{"difficulty":"silver 4","title":"숫자놀이"},
+    "17484":{"difficulty":"silver 3","title":"진우의 달 여행 (Small)"},
+    "17485":{"difficulty":"gold 5","title":"진우의 달 여행 (Large)"},
+    "21449":{"difficulty":"silver 3","title":"Unread Messages"},
+    "6182":{"difficulty":"silver 2","title":"Roads Around The Farm"},
+    "12785":{"difficulty":"silver 1","title":"토쟁이의 등굣길"},
+    "3885":{"difficulty":"silver 1","title":"회색 영역"},
+    "1174":{"difficulty":"gold 5","title":"줄어드는 수"}
 }
