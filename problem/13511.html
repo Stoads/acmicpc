@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+최소 플래티넘 난이도를 자랑하는 트리와 쿼리 문제 그 2번째
+
+트리에서 update 쿼리가 없기 때문에 트리와 쿼리 문제중에 젤 쉬운 편이라고 생각한다
+
+update가 없으므로, 구간의 비용 합을 구하는 1번 쿼리는 lca를 계산하면서 덤으로 비용도 같이 계산해주면 된다.
+
+2번 쿼리 같은 경우에는 u, v의 공통조상 t에 대해서 [u,t]구간, [t,v]구간으로 나눠서 생각하면되는데, v정점은 공통 조상을 넘어서 경로를 파악하는 것이니 반대로 v정점에서 올라가면서 계산하면 된다
+
+만약 비용 update쿼리가 존재했다면, lca로는 비용 갱신을 못하니 heavy-light decompostion을 이용해서 별도의 세그먼트 트리에 비용을 저장했어야 할 것이다.
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;vector&#x3E;
+int n,m;
+std::vector&#x3C;std::pair&#x3C;int, int&#x3E; &#x3E; graph[123456];
+int par[123456][20];        //for lca, first
+int depth[123456];
+long long cost[123456][20];       //for costs sum
+int visit[123456];
+void pre_lca(int c,int d){
+    if(visit[c])return;
+    visit[c]=1;
+    depth[c]=d;
+    for(auto&#x26; i : graph[c]){
+        if(visit[i.first])continue;
+        par[i.first][0]=c;
+        cost[i.first][0]=i.second;
+        pre_lca(i.first,d+1);
+    }
+}
+void init_lca(){
+    for(int k=1;k&#x3C;20;k++)
+        for(int i=1;i&#x3C;=n;i++)
+            par[i][k]=par[par[i][k-1]][k-1],
+            cost[i][k]=cost[i][k-1]+cost[par[i][k-1]][k-1];
+}
+std::pair&#x3C;int,long long&#x3E; get_lca_with_cost(int a,int b){
+    long long res=0;
+    if(depth[a]&#x3C;depth[b])a^=b^=a^=b;
+    for(int i=19;i&#x3E;=0;i--)
+        if(depth[par[a][i]]&#x3E;=depth[b])
+            res+=cost[a][i],a=par[a][i];
+    if(a==b)return std::make_pair(a,res);
+    for(int i=19;i&#x3E;=0;i--)
+        if(par[a][i]!=par[b][i])
+            res+=cost[a][i]+cost[b][i],a=par[a][i],b=par[b][i];
+    return std::make_pair(par[a][0],res+cost[a][0]+cost[b][0]);
+}
+int main(){
+    scanf(&#x22;%d&#x22;,&#x26;n);
+    for(int i=1,u,v,w;i&#x3C;n;i++){
+        scanf(&#x22;%d%d%d&#x22;,&#x26;u,&#x26;v,&#x26;w);
+        graph[u].push_back(std::make_pair(v,w));
+        graph[v].push_back(std::make_pair(u,w));
+    }
+    scanf(&#x22;%d&#x22;,&#x26;m);
+    pre_lca(1,0);
+    init_lca();
+    for(int i=0,t,u,v,k;i&#x3C;m;i++){
+        scanf(&#x22;%d%d%d&#x22;,&#x26;t,&#x26;u,&#x26;v);
+        auto lca=get_lca_with_cost(u,v);
+        if(t==1)
+            printf(&#x22;%lld\n&#x22;,lca.second);
+        else{
+            scanf(&#x22;%d&#x22;,&#x26;k);
+            k--;
+            int pp=lca.first;
+            if(k&#x3E;depth[u]-depth[pp]){
+                k=depth[u]+depth[v]-depth[pp]*2-k;
+                u=v;
+            }
+            for(int j=19;j&#x3E;=0;j--)
+                if((1&#x3C;&#x3C;j)&#x3C;=k)
+                    u=par[u][j],k-=1&#x3C;&#x3C;j;
+            printf(&#x22;%d\n&#x22;,u);
+        }
+    }
+}
+</code>
+조금 주의 해야할점이라면 그냥 lca에 대한 개념을 확실히 잡는것 정도인데, lca를 0부터 올라가면서 찾으면 log^2 n 이 걸려버려서 시간초과가 날 수 있다.
+
+하지만 미리 log n 을 구하고 거서 부터 내려오면(풀이에선 19) log n의 시간만에 가능하므로, 이 점을 주의하면 좋을 것 같다.
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>
