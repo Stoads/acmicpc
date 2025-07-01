@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+solved.ac Class 6 문제, 그래프와 인접행렬, 행렬곱 사이의 상관관계 및 점화식을 행렬로 나타내어 log T 만에 계산할 수 있는 능력을 요구한다.
+
+하나하나 따지면 별로 어렵지 않은데, 그걸 다 섞어놔서 어려울 수 있는 문제다. 우선 입력으로 들어오는 인접행렬을 각 비용별로 분리를 해주자(1~5) 이를 각각 m[t]이라고 정의하자.
+
+이 때, 비용이 t인 간선 수 행렬 D[t]에 대해서, D[5]까지는 쉽게 구할 수 있을 것이다.
+
+t&#x3C;0에 대한 D[t]를 0행렬, D[0]을 단위 행렬로 정의할경우 t&#x3E;0인 t에 대해여 다음과 같은 점화식이 성립한다.
+
+<code class="text">
+D[t]=D[t-1]*m[1]+D[t-2]*m[2]+D[t-3]*m[3]+D[t-4]*m[4]+D[t-5]*m[5]
+</code>
+이를 DP를 이용할 경우 O(T * N^2)만에 문제를 풀 수 있겟으나, N&#x3C;=10 이고, T&#x3C;1,000,000,000 이므로, T의 시간이 걸리면 시간초과가 발생하게 된다.
+
+이에 대해서 위 점화식을 행렬로 구현할 수 있는데
+
+<code class="text">
+[I]=단위 행렬, [0]은 0행렬
+| D[n  ] |   | m[1] m[2] m[3] m[4] m[5] |   | D[n-1] |
+| D[n-1] |   |  [I]  [0]  [0]  [0]  [0] |   | D[n-2] |
+| D[n-2] | = |  [0]  [I]  [0]  [0]  [0] | * | D[n-3] |
+| D[n-3] |   |  [0]  [0]  [I]  [0]  [0] |   | D[n-4] |
+| D[n-4] |   |  [0]  [0]  [0]  [I]  [0] |   | D[n-5] |
+</code>
+위 블록 행렬을 M이라고 할 경우, D[n] = M^n[0][0]임을 알수 있을 것이다. 이에 대한 코드는 아래처럼 작성할 수 있을 것이다.
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;cstring&#x3E;
+#define DIV 1000003
+int N,S,E,T;
+typedef struct matrix{
+    long long dat[10][10];
+    int size;
+    matrix(){
+        memset(this-&#x3E;dat,0,sizeof(dat));
+        this-&#x3E;size=0;
+    }
+    matrix(int size,int flg=0){
+        memset(this-&#x3E;dat,0,sizeof(dat));
+        this-&#x3E;size=size;
+        if(flg)
+            for(int i=0;i&#x3C;this-&#x3E;size;i++)
+                this-&#x3E;dat[i][i]=1;
+    }
+    long long* operator[](int n){
+        return this-&#x3E;dat[n];
+    }
+    struct matrix operator*(struct matrix&#x26; a){
+        struct matrix res(this-&#x3E;size);
+        for(int i=0;i&#x3C;this-&#x3E;size;i++)
+            for(int j=0;j&#x3C;this-&#x3E;size;j++)
+                for(int k=0;k&#x3C;this-&#x3E;size;k++)
+                    res[i][j]=(res[i][j]+(*this)[i][k]*a[k][j])%DIV;
+        return res;
+    }
+    struct matrix operator+(struct matrix&#x26; a){
+        struct matrix res=*this;
+        for(int i=0;i&#x3C;this-&#x3E;size;i++)
+            for(int j=0;j&#x3C;this-&#x3E;size;j++)
+                res[i][j]=(res[i][j]+a[i][j])%DIV;
+        return res;
+    }
+    struct matrix operator+(struct matrix&#x26;&#x26; a){
+        struct matrix res=*this;
+        for(int i=0;i&#x3C;this-&#x3E;size;i++)
+            for(int j=0;j&#x3C;this-&#x3E;size;j++)
+                res[i][j]=(res[i][j]+a[i][j])%DIV;
+        return res;
+    }
+}MAT;
+MAT mat[7];
+MAT dp[7];
+MAT res;
+MAT matmat[5][5];
+
+void matmat_mul(MAT a[][5],MAT b[][5]){
+    MAT res[5][5];
+    for(int i=0;i&#x3C;5;i++)
+        for(int j=0;j&#x3C;5;j++){
+            res[i][j]=MAT(a[i][j].size);
+            for(int k=0;k&#x3C;5;k++)
+                res[i][j]=res[i][j]+a[i][k]*b[k][j];
+        }
+    for(int i=0;i&#x3C;5;i++)
+        for(int j=0;j&#x3C;5;j++)
+            a[i][j]=res[i][j];
+}
+
+long long get_res(int k){
+    MAT res[5][5];
+    for(int i=0;i&#x3C;5;i++)
+        for(int j=0;j&#x3C;5;j++)
+            res[i][j]=MAT(N,i==j);
+    for(k;k;k&#x3E;&#x3E;=1){
+        if(k&#x26;1)
+            matmat_mul(res,matmat);
+        matmat_mul(matmat,matmat);
+    }
+    MAT r_mat=res[0][0];
+    return r_mat[S-1][E-1];
+}
+
+int main(){
+    scanf(&#x22;%d%d%d%d&#x22;,&#x26;N,&#x26;S,&#x26;E,&#x26;T);
+    for(int i=0;i&#x3C;7;i++)
+        mat[i].size=dp[i].size=N;
+    for(int i=0;i&#x3C;N;i++)
+        dp[0][i][i]=1;
+    for(int i=-1,t;++i&#x3C;N;){
+        for(int j=-1;++j&#x3C;N;){
+            scanf(&#x22;%1d&#x22;,&#x26;t);
+            mat[t][i][j]=1;
+        }
+    }
+    for(int i=1;i&#x3C;=5;i++){
+        dp[i]=mat[i];
+        for(int j=1;j&#x3C;i;j++)
+            dp[i]=dp[i]+dp[j]*mat[i-j];
+    }
+    for(int i=0;i&#x3C;5;i++)
+        for(int j=1;j&#x3C;5;j++)
+            matmat[i][j]=MAT(N,i+1==j); //second prameter is true, unit matrix / else 0 matrix
+    for(int i=0;i&#x3C;5;i++)
+        matmat[i][0]=mat[i+1];
+    printf(&#x22;%lld&#x22;,get_res(T));
+}
+</code>
+하지만 내부 요소가 행렬로 이루어진 행렬을 곱하는건 구현이라던가 생각하기가 쉽지 않다. 그래서 위 개념을 좀 더 연산하기 편하게 확장행렬로써 구현하는 개념을 소개하고자 한다.
+
+일단 현재 로직의 핵심 부분은 블록행렬인데, 비용 증가시 값 전이를 위한 단위 행렬 부분과, 다음 간선으로 이동하기 위한 간선 이동 부분으로 볼 수 있다.
+
+위 행렬에 대해 0번째 행이 간선 이동부분이고, 나머지 아래 4부분이 전이를 위한 단위 행렬 부분이다.
+
+이를 기존 N크기 행렬에서 N*5의 행렬로 확장하고, 내부에 전이를 위한 부분과 간선 이동을 위한 부분을 활성화 한다.
+
+이 때, 확장행렬 E에 대해, 기존 행렬의 i번 노드 및 j번 노드에 대해, E[i*5][j*5+3]=1은 i번 노드에서 j번 노드로 가는 비용이 4인 간선이 존재함을 의미하게 된다.
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;cstring&#x3E;
+#define DIV 1000003
+int N,S,E,T;
+typedef struct matrix{
+    long long dat[50][50];
+    int size;
+    matrix(){
+        memset(this-&#x3E;dat,0,sizeof(dat));
+        this-&#x3E;size=0;
+    }
+    matrix(int size){
+        memset(this-&#x3E;dat,0,sizeof(dat));
+        this-&#x3E;size=size;
+    }
+    long long* operator[](int n){
+        return this-&#x3E;dat[n];
+    }
+    struct matrix operator*(struct matrix&#x26; a){
+        struct matrix res(this-&#x3E;size);
+        for(int k=0;k&#x3C;this-&#x3E;size;k++)
+            for(int i=0;i&#x3C;this-&#x3E;size;i++)
+                if((*this)[i][k])
+                    for(int j=0;j&#x3C;this-&#x3E;size;j++)
+                        if(a[k][j])
+                            res[i][j]=(res[i][j]+(*this)[i][k]*a[k][j])%DIV;
+        return res;
+    }
+    struct matrix operator^(int a){
+        struct matrix res(this-&#x3E;size);
+        for(int i=0;i&#x3C;this-&#x3E;size;i++)
+            res[i][i]=1;
+        struct matrix mul=*this;
+        for(a&#x3C;&#x3C;=1;a&#x3E;&#x3E;=1;mul=mul*mul)
+            if(a&#x26;1)res=res*mul;
+        return res;
+    }
+}MAT;
+
+int main(){
+    scanf(&#x22;%d%d%d%d&#x22;,&#x26;N,&#x26;S,&#x26;E,&#x26;T);
+    MAT mat(N*5);
+    for(int i=0,t;i&#x3C;N;i++){
+        for(int k=1;k&#x3C;5;k++)
+            mat[i*5+k][i*5+k-1]=1;  //비용 증가에 따른 전이 부분
+        for(int j=0;j&#x3C;N;j++){
+            scanf(&#x22;%1d&#x22;,&#x26;t);
+            if(t)
+                mat[i*5][j*5+t-1]=1;    //실제 간선 이동 부분
+        }
+    }
+    MAT res=mat^T;
+    printf(&#x22;%lld&#x22;,res[S*5-5][E*5-5]);
+}
+</code>
+결국엔 위도 아래도 O(N^2 log T)의 시간만에 원하는 값을 구하지만, 연산 과정의 간단함과 간결함 쪽에서 확장행렬 쪽이 훨신 나은거 같다. 개념은 더 복잡하지만
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>
