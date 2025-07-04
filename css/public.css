@@ -20,6 +20,7 @@ header{
     top:0;
     left:0;
     right:0;
+    z-index:1;
 }
 header input.form-control{
     width:auto;
@@ -36,4 +37,23 @@ code{
     border-radius:0.5em;
     padding-top:0.75em !important;
     padding-bottom:0.75em !important;
+}
+
+.bronze-color{
+    color:#ad5600 !important;
+}
+.silver-color{
+    color:#435f7a !important;
+}
+.gold-color{
+    color:#ec9a00 !important;
+}
+.platinum-color{
+    color:#27e2a4 !important;
+}
+.diamond-color{
+    color:#00b4fc !important;
+}
+.ruby-color{
+    color:#ff0062 !important;
 }

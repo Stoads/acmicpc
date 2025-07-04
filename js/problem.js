@@ -1,4 +1,4 @@
-import { get_difficulty_img } from "./level_icon.js"
+import { get_difficulty_img } from "./level.js"
 import { createEL } from "./create_element.js"
 import { EL, ELA } from "./selector.js"
 import { problem } from './json_proc.js'

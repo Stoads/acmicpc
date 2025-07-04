@@ -1,0 +1,24 @@
+/* .collapse>.list-group-item:last-child, .collapsing>.list-group-item:last-child{
+    border-bottom:0px;
+} */
+.list-group>div>.list-group-item{
+    border-top:0px;
+}
+.list-group>div{
+    border-radius: 0;
+}
+.list-group>div:last-child{
+    border-bottom:1px;
+}
+a.list-group-item:not(:first-of-type){
+    border-top:0px;
+}
+.list-group *:last-child{
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+}
+a.collapsed:last-of-type{
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+}
+/* .collapsing:last-child  */

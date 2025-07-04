@@ -1,7 +1,7 @@
 import { createEL } from "./create_element.js"
 let svg_flag=0
 
-const difficulty_map={
+export const difficulty_map={
     bronze:0,
     silver:5,
     gold:10,

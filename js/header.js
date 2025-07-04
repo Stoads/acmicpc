@@ -13,7 +13,7 @@ const div = createEL('div','d-flex flex-wrap align-items-center justify-content-
 )
 const input = createEL(
     'input',
-    ['col-12','col-lg-auto','mb-3','mb-lg-0','me-lg-3','form-control'],
+    'col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 form-control',
     {
         'role':'p_id',
         'placeholder':'problem id',
