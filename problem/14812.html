@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+Solved.ac 4번째 마라톤 참여 7번째 문제의 Small 버전으로 나왔는데, 풀이 고민하고 해결하다가 시간이 지나버려서 마라톤 기간이 끝났으므로, Small 버전은 따로 안풀 예정임.
+
+제한시간 5초에 요소는 1440개, 2명으로 분해해서 720,720개 정도 수준에 그치므로, 간단하게 우선 DP를 사용할 수 있겠다.
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;vector&#x3E;
+#include &#x3C;cstring&#x3E;
+#include &#x3C;algorithm&#x3E;
+int T;
+int arr[1450];
+int dp[730][730][2];
+int dfs(int c,int j,int k){
+    if(c&#x3C;0||j&#x3C;0)return 2e9;
+    if(dp[c][j][k]!=-1)return dp[c][j][k];
+    if(arr[c+j]==k+1)return dp[c][j][k]=2e9;
+    if(c==0&#x26;&#x26;j==0)return dp[c][j][k]=1;
+    dp[c][j][k]=std::min(dfs(c-1,j,0)+k,dfs(c,j-1,1)+!k);
+    return dp[c][j][k];
+}
+int solve(){
+    int Ac,Aj;
+    scanf(&#x22;%d%d&#x22;,&#x26;Ac,&#x26;Aj);
+    memset(arr,0,sizeof(arr));
+    for(int i=0,x,y;i&#x3C;Ac;i++){
+        scanf(&#x22;%d%d&#x22;,&#x26;x,&#x26;y);
+        for(;x&#x3C;y;x++)
+            arr[x]=1;
+    }
+    for(int i=0,x,y;i&#x3C;Aj;i++){
+        scanf(&#x22;%d%d&#x22;,&#x26;x,&#x26;y);
+        for(;x&#x3C;y;x++)
+            arr[x]=2;
+    }
+    memset(dp,-1,sizeof(dp));
+    dp[0][0][0]=0;
+    int res=dfs(720,720,0);
+    memset(dp,-1,sizeof(dp));
+    dp[0][0][1]=0;
+    return std::min(res,dfs(720,720,1));
+}
+
+int main(){
+    for(int i=scanf(&#x22;%d&#x22;,&#x26;T);i&#x3C;=T;i++)
+        printf(&#x22;Case #%d: %d\n&#x22;,i,solve());
+}
+</code>
+간단한 DP로 해결이 되는데, 만약 문제가 분단위가 아닌 초단위로 주어졌다면 어떻게 될까? 그때는 다른 해결책을 생각해야한다.
+
+우선 간단하게 생각해서 C에서 J로 구간이 변경되는 그 사이의 2명다 비는 시간은, 누가 얼만큼 가져가더라도 반드시 교환이 1번 일어나는 구간으로 볼 수 있다.
+
+C에서 C로 연속되는 구간은 어떨까? 그 사이 구간은 가능하다면 C가 점유하는 편이 좋을 것이다.
+
+하지만, C와 J는 각각 점유할 수 있는 시간이 720으로 한정되어있는 문제가 있다.
+
+C의 시간이 부족할때를 생각해보자.
+
+먼저 교환이 반드시 1번 일어나는 구간의 경우, 누구든 시간을 가져갈 수 있으니 J에 최대한 할당을 해준다.
+
+만약 그래도, C의 시간이 부족할 경우, C와 C 사이의 구간 중 가장 큰것부터 J에 할당을 해주고, 교환이 일어나는 회수를 2씩 늘려준다.
+
+이 때, C의 시간이 더이상 부족하지 않다면, 교환 회수를 알 수 있다.
+
+이는 J에 대해서도 마찬가지가 성립함을 알 수 있다.
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;vector&#x3E;
+#include &#x3C;algorithm&#x3E;
+#include &#x3C;tuple&#x3E;
+
+int solve(){
+    int n,m;
+    scanf(&#x22;%d%d&#x22;,&#x26;n,&#x26;m);
+    std::vector&#x3C;std::tuple&#x3C;int,int,int&#x3E;&#x3E; v;
+    for(int i=0,x,y;i&#x3C;n;i++){
+        scanf(&#x22;%d%d&#x22;,&#x26;x,&#x26;y);
+        v.push_back(std::make_tuple(x,y,0));
+    }
+    for(int i=0,x,y;i&#x3C;m;i++){
+        scanf(&#x22;%d%d&#x22;,&#x26;x,&#x26;y);
+        v.push_back(std::make_tuple(x,y,1));
+    }
+    std::sort(v.begin(),v.end());
+    auto [a,b,c]=v[0];
+    v.push_back(std::make_tuple(a+1440,b+1440,c));
+    
+    std::vector&#x3C;int&#x3E; blk[2];
+    int t=0,f=0,res=0;      //t&#xB294; &#xC810;&#xC720; &#xD574;&#xC57C;&#xD558;&#xB294; &#xC2DC;&#xAC04;(&#xC591;&#xC218;&#xBA74; C&#xAC00; &#xC74C;&#xC218;&#xBA74; J&#xAC00;), f&#xB294; &#xB0A8;&#xB294; &#xC2DC;&#xAC04;
+    for(int i=1,lim=v.size();i&#x3C;lim;i++){
+        auto [nx,ny,np]=v[i];
+        auto [px,py,pp]=v[i-1];
+        if(np==pp){     //&#xC5F0;&#xC18D;&#xB41C; &#xAD6C;&#xAC04;&#xC774;&#xB77C;&#xBA74;
+            blk[np].push_back(nx-py);       //&#xAD6C;&#xAC04; &#xC0AC;&#xC774;&#xC758; &#xACF5;&#xBC31;&#xC2DC;&#xAC04;&#xC744; &#xC800;&#xC7A5;
+            t+=(ny-py)*(1-np*2);        //&#xC810;&#xC720;&#xD558;&#xAE38; &#xD76C;&#xB9DD;&#xD558;&#xB294; &#xAD6C;&#xAC04;&#xC744; &#xD1B5;&#xCC44;&#xB85C; &#xB354;&#xD574;&#xC90C;(&#xACF5;&#xBC31;&#xAD6C;&#xAC04;+&#xBC18;&#xB4DC;&#xC2DC; &#xC810;&#xC720;&#xD574;&#xC57C;&#xD558;&#xB294; &#xAD6C;&#xAC04;)
+        }
+        else{       //&#xC5F0;&#xC18D;&#xB418;&#xC9C0; &#xC54A;&#xC740; &#xAD6C;&#xAC04;&#xC774;&#xB77C;&#xBA74;
+            f+=nx-py;           //&#xB0A8;&#xB294; &#xC2DC;&#xAC04;&#xC744; &#xB204;&#xC801;
+            t+=(ny-nx)*(1-np*2);    //&#xBC18;&#xB4DC;&#xC2DC; &#xC810;&#xC720;&#xD574;&#xC57C;&#xD558;&#xB294; &#xAD6C;&#xAC04;&#xC744; &#xB354;&#xD574;&#xC90C;
+            res++;          //&#xAD50;&#xD658; 1&#xBC88; &#xBC1C;&#xC0DD;
+        }
+    }
+    int dir=t&#x3C;0?-1:1;       //&#xC591;&#xC218; &#xC74C;&#xC218; &#xCC98;&#xB9AC; &#xD1B5;&#xC77C;&#xC6A9;
+    auto&#x26; tb=blk[t&#x3C;0?1:0];      //&#xC591;&#xC218; &#xC74C;&#xC218;&#xC5D0; &#xB530;&#xB77C; &#xD560;&#xB2F9;&#xD574;&#xC57C;&#xD558;&#xB294; &#xACF5;&#xBC31;&#xC2DC;&#xAC04; &#xC120;&#xD0DD;
+    t -= dir*std::min(f,dir*t);     //&#xB0A8;&#xB294;&#xC2DC;&#xAC04;&#xC744; &#xC6B0;&#xC120;&#xC801;&#xC73C;&#xB85C; &#xC0AC;&#xC6A9;
+    if(t)       //&#xADF8;&#xB7FC;&#xC5D0;&#xB3C4; &#xB0A8;&#xB294; &#xC2DC;&#xAC04;&#xC774; &#xC788;&#xB2E4;&#xBA74;
+        for(std::sort(tb.begin(),tb.end());t&#x26;&#x26;tb.size();tb.pop_back()){
+            t -= dir*std::min(tb.back()*2,dir*t);       //&#xAC00;&#xC7A5; &#xD070;&#xAC12;&#xBD80;&#xD130; &#xBE7C;&#xC90C;. &#xC774;&#xB54C; *2&#xB97C; &#xD558;&#xB294; &#xC774;&#xC720;&#xB294; &#xC704;&#xC5D0;&#xC11C; &#xC810;&#xC720;&#xD558;&#xAE38; &#xD76C;&#xB9DD;&#xD558;&#xB294; &#xAD6C;&#xAC04;&#xC744; &#xB354;&#xD558;&#xBA74;&#xC11C; &#xD55C;&#xBC88; &#xD3EC;&#xD568;&#xB41C; &#xAD6C;&#xAC04;&#xC774;&#xB77C;&#xC11C;
+            res+=2;     //&#xAD50;&#xD658; 2&#xD68C; &#xBC1C;&#xC0DD;
+        }
+    return res;
+}
+
+int main(){
+    int t;
+    for(int i=scanf(&#x22;%d&#x22;,&#x26;t);i&#x3C;=t;i++)
+        printf(&#x22;Case #%d: %d\n&#x22;,i,solve());
+}
+</code>
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>

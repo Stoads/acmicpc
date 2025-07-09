@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+Solved.ac 4번째 마라톤 참여 2번째 문제
+
+N*M 안에서 가장 큰 정사각형의 크기를 묻는 문제인데, N==M인 경우만 조심하면 된다.
+
+어쨌거나 결론은 N==M의 경우 (N-1)^2+1가 최대 넓이가 된다는 이야기다.
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+int N,M;
+int main(){
+    scanf(&#x22;%d%d&#x22;,&#x26;N,&#x26;M);
+    if(--N&#x3E;--M)N^=M^=N^=M;//swap
+    printf(&#x22;%d&#x22;,N==M?N*N-(N-1)*2:N*N);
+}
+</code>
+N과 M의 대소관계를 일정하게 바꿔주면 굉장히 코드가 간단해지는게 팁이라면 팁
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+Solved.ac 4번째 마라톤 참여 6번째 문제
+
+배열의 구간합 누적에 대한 문제이다.
+
+간단한 아이디어로, 배열 A에 대해서 [3,5]에 값을 1 늘린다 치면, A의 변화량 배열 D에 대해서 D[3]+=1,D[6]-=1 하면 되는 개념이다.
+
+값의 저장을 D로 하고, 최종적으로 D를 더해나가면서 A를 구하면 되는 방법이다.
+
+막말로 이번엔 쿼리 누적 이후에 값을 물어봐서 상관이 없지만, 쿼리 중간중간 값을 구해야 할 경우에는 Segment Tree를 써야한다.
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;algorithm&#x3E;
+int N,K;
+int arr[1234567];
+int main(){
+    scanf(&#x22;%d%d&#x22;,&#x26;N,&#x26;K);
+    for(int i=0,A,B;i&#x3C;K;i++){
+        scanf(&#x22;%d%d&#x22;,&#x26;A,&#x26;B);
+        arr[A-1]++;
+        arr[B]--;
+    }
+    for(int i=1;i&#x3C;N;i++)
+        arr[i]+=arr[i-1];
+    std::nth_element(arr,arr+N/2,arr+N);
+    printf(&#x22;%d&#x22;,arr[N/2]);
+}
+</code>
+처음 값의 차분은 없으니 0에서 시작 후, 입력받는 구간마다 차분을 구하고, 그걸 누적해서 원본 배열을 구하는 방식으로 하면 빠르게 구할 수 있다.
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>
