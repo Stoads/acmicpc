@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+BOJ에서 알고리즘 조금 친다는 마인드로 들어왔을 때 보통 맞딱드리는 거대한 벽이다.
+
+무려 2*N 환형 리스트에서 최소 그룹 수를 구하는 문제인데,
+
+"환형"이기 때문에 난이도가 굉장히 올라간다.
+
+환형 요소가 없더라도 유도과정이 꽤 복잡한 DP를 거쳐야 하기 떄문에 골드 2정도 수준은 나올거라고 생각하는데, 환형 요소를 통해 조건 분기 및 처리 요소가 플래 3까지 난이도를 올린 케이스라고 생각한다.
+
+아무튼 핵심은 환형요소가 없을 때 기준으로 DP를 진행하고, 각 환형 부분의 연결부에 따라 어떻게 처리를 진행할 것인가?가 핵심이라고 할 수 있다.
+
+나는 이를 2가지 방법으로 나눠서 풀었는데, 하나는 초기값을 통해 무조건 처음과 끝이 연결된 상황을 가정하고, 추후 조건에 따라 유효한 연결 상황으로만 개수를 확인하는 방법
+
+다른 하나는 처음과 끝의 연결 가능 여부를 파악하고 연결 가능하다면 강제로 다른 요소들과 연결을 못하게 값을 조정 후, 마지막에 연결 처리를 해주는 방법으로 풀었다.
+
+우선 처음에 푼 방법으로, 연결여부에 따라 5가지 상태로 나눠서 해결한 방법이다.
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;algorithm&#x3E;
+
+const int INF=2e9;
+int n,w;
+int arr[12345][2];
+//2nd - 0 : up-left, down-left merge, 1: up-down merge, 2 : up-left merge, 3: down-left merge, 4: no merge
+int dp[12345][5]; 
+
+int get_val(int first_conn){
+    //first_conn 조건에 따른 초기화, 0일때는 병합 없음, 1일때는 위줄 양끝 병합, 2일때는 아래줄 양 끝 병합, 3일때는 양쪽 줄 양끝 병합
+    //연결이 안되는 경우에는 바로 INF 리턴
+    std::fill(dp[0],dp[n],INF);
+    dp[0][4]=2;
+    if(arr[0][0]+arr[0][1]&#x3C;=w)
+        dp[0][1]=1;
+    if(first_conn&#x26;1){
+        if(arr[0][0]+arr[n-1][0]&#x3C;=w)
+            dp[0][2]=1;
+        else if(first_conn==1) return INF;
+    }
+    if(first_conn&#x26;2){
+        if(arr[0][1]+arr[n-1][1]&#x3C;=w)
+            dp[0][3]=1;
+        else if(first_conn==2) return INF;
+    }
+    if(first_conn==3){
+        if(dp[0][2]==1&#x26;&#x26;dp[0][3]==1)dp[0][0]=0;
+        else return INF;
+    }
+
+    //병합 조건에 따라 병합하되, 이전 병합요소가 아닌 것들하고만 병합을 진행한다. (이전칸에 위쪽 병합이 안된 요소들에서만 위쪽 병합 계산 등)
+    for(int i=1;i&#x3C;n;i++){
+        int f1=arr[i][0]+arr[i-1][0]&#x3C;=w,
+            f2=arr[i][1]+arr[i-1][1]&#x3C;=w,
+            f3=arr[i][0]+arr[i][1]&#x3C;=w;
+        for(int j=0;j&#x3C;5;j++){
+            dp[i][4]=std::min(dp[i][4],dp[i-1][j]+2);
+            if(f3){
+                dp[i][1]=std::min(dp[i][1],dp[i-1][j]+1);
+            }
+            if(f1&#x26;&#x26;j!=0&#x26;&#x26;j!=1&#x26;j!=2){
+                dp[i][2]=std::min(dp[i][2],dp[i-1][j]+1);
+            }
+            if(f2&#x26;&#x26;j!=0&#x26;&#x26;j!=1&#x26;j!=3){
+                dp[i][3]=std::min(dp[i][3],dp[i-1][j]+1);
+            }
+            if(f1&#x26;&#x26;f2&#x26;&#x26;j==4){
+                dp[i][0]=std::min(dp[i][0],dp[i-1][j]);
+            }
+        }
+    }
+    //처음 연결 조건에 따라 유효한 값들을 계산한다.
+    int _min=INF;
+    if(first_conn==3){
+        _min=dp[n-1][4];
+    }
+    else if(first_conn==2){
+        for(int i=2;i&#x3C;5;i+=2)
+            _min=std::min(_min,dp[n-1][i]);
+    }
+    else if(first_conn==1){
+        for(int i=3;i&#x3C;5;i++)
+            _min=std::min(_min,dp[n-1][i]);
+    }
+    else{
+        for(int i=0;i&#x3C;5;i++)
+            _min=std::min(_min,dp[n-1][i]);
+    }
+    return _min;
+}
+
+void sol(){
+    scanf(&#x22;%d%d&#x22;,&#x26;n,&#x26;w);
+    for(int j=0;j&#x3C;2;j++)
+        for(int i=0;i&#x3C;n;i++)
+            scanf(&#x22;%d&#x22;,arr[i]+j);
+    int ans=INF;
+    for(int i=0;i&#x3C;4;i++)ans=std::min(ans,get_val(i));
+    printf(&#x22;%d\n&#x22;,ans);
+}
+
+int main(){
+    int t;
+    scanf(&#x22;%d&#x22;,&#x26;t);
+    while(t--)sol();
+    
+}
+</code>
+조건이라던가 난해해 보일 수 있지만, 상당히 직관적으로 모든 연결 케이스를 나눠서 DP 계산을 한 것을 확인할 수 있다.
+
+다음은 DP 연산을 따로 빼고, 처음 연결 여부를 확인해서 연결 가능성을 제거 한 후, DP 이후의 연결 처리를 해주는 코드다.
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;cstring&#x3E;
+#include &#x3C;algorithm&#x3E;
+#define INF 0x10000000 //XOR 연산에서 안전한 값으로 설정
+int dp[3][12345];       //[t][i]에 대해 t값 0 : i번째 위까지 배치, i-1번째 아래까지 배치 시/ 1 : i-1번째 위까지 배치, i번째 아래까지 배치 시/ 2 : i번째 전체 배치시
+int arr[2][12345];
+int n,w;
+
+int dpf(){
+    for(int t=2;t&#x3C;=n;t++){
+        int f0=2-(arr[0][t]+arr[0][t-1]&#x3C;=w);
+        int f1=2-(arr[1][t]+arr[1][t-1]&#x3C;=w);
+        int f2=2-(arr[0][t]+arr[1][t]&#x3C;=w);
+        dp[0][t]=std::min(dp[2][t-1]+1,dp[1][t-1]+f0);
+        dp[1][t]=std::min(dp[2][t-1]+1,dp[0][t-1]+f1);
+        dp[2][t]=std::min({dp[2][t-1]+f2,dp[2][t-2]+f0+f1,dp[0][t]+1,dp[1][t]+1});
+    }
+    return dp[2][n];
+}
+
+int solve(){
+    scanf(&#x22;%d%d&#x22;,&#x26;n,&#x26;w);
+    for(int i=0;i&#x3C;2;i++)
+        for(int j=1;j&#x3C;=n;j++)
+            scanf(&#x22;%d&#x22;,arr[i]+j);
+    dp[0][1]=dp[1][1]=1;
+    dp[2][1]=2-(arr[0][1]+arr[1][1]&#x3C;=w);
+    int res=dpf(); 
+    if(n&#x3E;1){   //처음 끝 연결 가능한 크기에서
+        dp[2][1]=2;
+        int f[3]={};
+        for(int i=0;i&#x3C;2;i++)
+            f[i]=arr[i][1]+arr[i][n]&#x3C;=w;
+        f[2]=f[0]&#x26;&#x26;f[1];
+        for(int i=0;i&#x3C;2;i++)       //각각 위 아래에 대해 처리
+            if(f[i]){             //위 아래 각각 처음과 끝이 연결 가능하면,
+                arr[i][1]^=INF,arr[i][n]^=INF;      //DP에서 연결 못 하도록 w보다 큰값이 되게 처리
+                res=std::min(res,dpf()-1);      //각각 양쪽 끝을 이어줘야하니 -1
+                arr[i][1]^=INF,arr[i][n]^=INF;      //후에 XOR 연산으로 다시 값을 복구하기 위해 처음에도 XOR 연산을 썼다
+            }
+        if(f[2]){           //양쪽 위아래 전부 연결 가능할시
+            arr[0][1]=INF,arr[1][1]=INF,arr[0][n]=INF,arr[1][n]=INF;    //양쪽 끝을 전부 DP에서 연결 못 하도록 처리
+            res=std::min(res,dpf()-2);      //양쪽 위아래를 이어줘야하니 -2
+        }
+    }
+    return res;
+}
+
+int main(){
+    int T;
+    for(scanf(&#x22;%d&#x22;,&#x26;T);T--;printf(&#x22;%d\n&#x22;,solve()));
+}
+</code>
+개인적으로는 후자 DP 선언을 이해하는게 좀 난해했다. 근데 잘 생각해보면 모든 연결 케이스를 저 배열 3개를 통해 전부 나타낼 수 있음을 알 수 있을 것이다.
+
+개인적인 생각으로는 전자와 후자는, DP 누적이 더러운 대신 전체 규칙 처리가 깔끔한가, DP 누적이 깔끔한 대신 전체 규칙에 대한 처리가 더러운가 차이라고 본다.
+
+전자도 아마 조건 4개로 줄일 수 있을거 같지만, 처음 풀때 만전을 기한다고 조건 5개로 늘려서 했던거 같다.
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>
