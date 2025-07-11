@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+Solved.ac Class 6 문제
+
+위상 정렬 후, 복수의 경로를 백트랙할 수 있는지 여부를 묻는 문제이다.
+
+필자는 국어 실력이 딸려서 경로를 중복해서 세는건줄 알아서 한참을 헤맸는데, 각사람이 지나간 도로의 수를 세는거라 중복 없이 세야한다.
+
+그 외에는 간단하게 위상정렬하고, 최대비용을 유지하는 역방향 간선에 대해서만 백트래킹 해주면 된다.
+
+<code class="c++">
+#include &#x3C;cstdio&#x3E;
+#include &#x3C;vector&#x3E;
+#include &#x3C;algorithm&#x3E;
+int n,m;
+std::vector&#x3C;std::pair&#x3C;int, int&#x3E; &#x3E; graph[12345],rgrp[12345];
+std::vector&#x3C;int&#x3E; topo;
+int visit[12345];
+int costs[12345];
+int s,e;
+int res;
+
+void t_sort(int c){     //위상정렬 DFS
+    visit[c]=1;
+    for(auto [i,w] : graph[c])
+        if(!visit[i])
+            t_sort(i);
+    topo.push_back(c);
+}
+
+int dfs(int c){     //백트래킹
+    int ret=0;
+    if(!visit[c])return 0;
+    visit[c]=0;
+    for(auto [i,w]:rgrp[c])
+        ret+=dfs(i)+1;
+    return ret;
+}
+
+int main(){
+    scanf(&#x22;%d%d&#x22;,&#x26;n,&#x26;m);
+    for(int i=0,u,v,w;i&#x3C;m;i++){
+        scanf(&#x22;%d%d%d&#x22;,&#x26;u,&#x26;v,&#x26;w);
+        graph[u].push_back(std::make_pair(v,w));
+    }
+    scanf(&#x22;%d%d&#x22;,&#x26;s,&#x26;e);
+    t_sort(s);
+    std::reverse(topo.begin(),topo.end());  //DFS로 한 위상정렬은 스택기반인데 끝점이 정해져 있어서 뒤집기만 하면 됨
+    for(auto u : topo)
+        for(auto [v,w] : graph[u])
+            if(costs[u]+w&#x3E;costs[v])        //최대 비용 찾기
+                costs[v]=costs[u]+w;
+    for(auto u : topo)
+        for(auto [v,w] : graph[u])
+            if(costs[u]+w==costs[v])        //최대 비용에 따른 영방향 그래프 빌드
+                rgrp[v].push_back(std::make_pair(u,w));
+    printf(&#x22;%d\n%d&#x22;,costs[e],dfs(e));
+}
+</code>
+역방향 그래프를 빌드할때 필요한 간선만 빌드해서 백트랙 조건이 없는것처럼 보일 수 있지만, 실제로 조건으로 costs[c]==costs[i]+w가 포함되어 있는 셈이다.
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>
