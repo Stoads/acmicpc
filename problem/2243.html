@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link class="link" rel="icon" type="image/png" size="32x32" href="https://www.acmicpc.net/favicon-32x32.png">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <!-- Syntex Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/a11y-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+    <link href="../css/public.css" rel="stylesheet"/>
+    <link href="../css/problem.css" rel="stylesheet"/>
+    <script type="module" src="../js/problem.js"></script>
+  </head>
+  <body>
+    <div id="contents" class="container">
+        <h1 class="title"></h1>
+<pre>
+Solved.ac Class 6 문제
+
+Segment Tree에서의 Binary search 문제다.
+
+Segment Tree에 대해 익숙해질 수 있는 좋은 문제다.
+
+Segment Tree의 응용에 속하기에 이애 대해 지식은 있겠지만, 기본이 이진트리에 기반하기 때문에 특정값과 좌측을 비교해서 조건을 만족하지 않으면 우측을 간다는 선택이 가능하다.
+
+Segment Tree를 기반한 binary search를 실행하므로 1번 쿼리 실행 시간은 O(log n), m번 쿼리 실행은 O(m log n)이 된다.
+
+<code class="c++">#include &#x3C;cstdio&#x3E;
+int n;
+int s_tree[9876543],seg;    //트리, 트리의 leaf index
+
+void update(int p, int d){
+    for(p+=seg;p;p&#x3E;&#x3E;=1)s_tree[p]+=d;  //전체 사탕수의 합을 기록하는 합 세그먼트 트리 업데이트
+}
+
+int find(int p,int l=0,int r=seg-1,int idx=1){
+    if(l==r)return l;       //leaf node
+    int lp=idx*2,rp=idx*2+1;
+    int mid=(l+r)/2;
+    if(s_tree[lp]&#x3E;=p) return find(p,l,mid,lp); //왼쪽에 포함되어 있다면
+    else return find(p-s_tree[lp],mid+1,r,rp);  //왼쪽에 포함되어 있지 않다면
+}
+
+int main(){
+    scanf(&#x22;%d&#x22;,&#x26;n);
+    for(seg=1;seg&#x3C;=1000000;seg&#x3C;&#x3C;=1);
+    for(int i=0,a,b,c;i&#x3C;n;i++){
+        scanf(&#x22;%d%d&#x22;,&#x26;a,&#x26;b);
+        if(a==1){
+            c=find(b);
+            printf(&#x22;%d\n&#x22;,c);
+            update(c,-1);           //사탕을 1개 뺐으니 update를 해줘야한다
+        }
+        else{
+            scanf(&#x22;%d&#x22;,&#x26;c);
+            update(b,c);
+        }
+    }
+}
+</code>
+bottom-up 방식의 간단하게 구현한 정적 segment tree다. 탐색도 그냥 조건부로 진행하면 된다.
+
+만약 top-down 방식으로 작성하고 싶다면 이렇게 해주면 된다.
+
+<code class="c++">
+void update(int p, int d, int l=0,int r=seg-1,int idx=1){
+    if(r&#x3C;p||p&#x3C;l)return;
+    s_tree[idx]+=d;
+    if(l==r)return;
+    int mid=(l+r)/2;
+    update(p,d,l,mid,idx*2);
+    update(p,d,mid+1,r,idx*2+1);
+}
+</code>
+bottom-up이 단일 갱신에서 더 작성하기 편하지만, 범위 갱신 및 범위 조회를 위해 lazy propagation 등을 할 때는 top-down 방식도 필요해지니 익히면 좋다.
+</pre>
+    </div>
+    <script>hljs.highlightAll()</script>
+  </body>
+</html>
